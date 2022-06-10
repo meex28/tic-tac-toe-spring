@@ -23,6 +23,12 @@ public class User implements Serializable {
 
     public User(){}
 
+    public User(String token, String nickname, Date created) {
+        this.token = token;
+        this.nickname = nickname;
+        this.created = created;
+    }
+
     public String getToken() {
         return token;
     }
