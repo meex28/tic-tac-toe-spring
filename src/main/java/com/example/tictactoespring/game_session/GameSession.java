@@ -49,6 +49,29 @@ public class GameSession {
     @Setter
     private boolean isAI;
 
+    @Getter
+    @Setter
+    private int playedGames;
+
+    public void incrementHostResult(){
+        this.hostResult++;
+    }
+
+    public void incrementGuestResult(){
+        this.guestResult++;
+    }
+
+    public void addPlayedGame(){
+        this.playedGames++;
+    }
+
+    public void switchTurn(){
+        if(this.status == GameStatus.HOST_TURN)
+            this.status = GameStatus.GUEST_TURN;
+        else if(this.status == GameStatus.GUEST_TURN)
+            this.status = GameStatus.HOST_TURN;
+    }
+
     public GameSession(){}
 
     public GameSession(User host){

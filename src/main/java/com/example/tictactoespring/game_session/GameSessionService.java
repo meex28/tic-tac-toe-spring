@@ -56,6 +56,86 @@ public class GameSessionService {
                 gameSession.getHostResult(), gameSession.getStatus(), gameSession.getBoard());
     }
 
+    //TODO: add leaving sessions
+    public void leaveSession(String token){
+
+    }
+
+    //TODO: add joining random sessions
+    public GameSessionDTO joinRandomSession(String token){
+        return null;
+    }
+
+    //TODO: add AI
+    public void addAiToSesson(String token) {
+
+    }
+
+    public void makeMove(String token, int field) throws TokenException {
+        GameSession gameSession = gameSessionRepository.getByToken(token);
+
+        if(!userService.isTokenValid(token) || gameSession == null)
+            throw new TokenException("Invalid token or not in game");
+
+        if(field < 0 || field > 8)
+            return;
+
+        char playerSymbol;
+        // check what symbol will be used
+        if(gameSession.getHost().getToken().equals(token))
+            playerSymbol = 'X';
+        else
+            playerSymbol = 'O';
+
+        String board = gameSession.getBoard();
+
+        // only empty field can be marked
+        if(board.charAt(field) == '_')
+            return;
+
+        board = GameSessionUtils.setBoardField(field, board, playerSymbol);
+        gameSession.setBoard(board);
+
+        char potentialWinner = GameSessionUtils.checkWinner(board);
+
+        // host - O
+        // guest - X
+        // check if someone win and send message to players
+        if(potentialWinner == 'O'){
+            gameSession.incrementHostResult();
+
+            gameSession.setStatus(GameStatus.YOU_WON);
+            sendSessionMessageToHost(gameSession);
+
+            gameSession.setStatus(GameStatus.OPPONENT_WON);
+            sendSessionMessageToGuest(gameSession);
+
+            gameSession.setStatus(GameStatus.NOT_READY);
+            gameSession.addPlayedGame();
+        }else if(potentialWinner == 'X'){
+            gameSession.incrementGuestResult();
+
+            gameSession.setStatus(GameStatus.OPPONENT_WON);
+            sendSessionMessageToHost(gameSession);
+
+            gameSession.setStatus(GameStatus.YOU_WON);
+            sendSessionMessageToGuest(gameSession);
+
+            gameSession.setStatus(GameStatus.NOT_READY);
+            gameSession.addPlayedGame();
+        }else if(potentialWinner == 'D'){
+            gameSession.addPlayedGame();
+            gameSession.setStatus(GameStatus.DRAW);
+            sendSessionMessages(gameSession);
+            gameSession.setStatus(GameStatus.NOT_READY);
+        }else{
+            gameSession.switchTurn();
+            sendSessionMessages(gameSession);
+        }
+
+        gameSessionRepository.update(gameSession);
+    }
+
     private void sendSessionMessageToHost(GameSession gameSession){
         // create DTO object for host, opponent result is guest result and own result is host result
         GameSessionDTO message = new GameSessionDTO(gameSession.getGuest().getNickname(), gameSession.getHostResult(),

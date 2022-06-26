@@ -1,5 +1,6 @@
 package com.example.tictactoespring;
 
+import com.example.tictactoespring.game_session.GameSessionUtils;
 import com.example.tictactoespring.user.User;
 import com.example.tictactoespring.user.UserRepository;
 import com.example.tictactoespring.user.UserService;
@@ -40,4 +41,28 @@ class TicTacToeSpringApplicationTests {
 //            }
 //        }
 //    }
+
+    @Test
+    void testCheckingWinner(){
+        String board = "_________";
+        System.out.println(GameSessionUtils.checkWinner(board) == '_');
+
+        board = "X___X___X";
+        System.out.println(GameSessionUtils.checkWinner(board) == 'X');
+
+        board = "O___O___O";
+        System.out.println(GameSessionUtils.checkWinner(board) == 'O');
+
+        board = "__X_X_X__";
+        System.out.println(GameSessionUtils.checkWinner(board) == 'X');
+
+        board = "XXX_O___O";
+        System.out.println(GameSessionUtils.checkWinner(board) == 'X');
+
+        board = "X_X__X__X";
+        System.out.println(GameSessionUtils.checkWinner(board) == 'X');
+
+        board = "X_X_____X";
+        System.out.println(GameSessionUtils.checkWinner(board) == '_');
+    }
 }
