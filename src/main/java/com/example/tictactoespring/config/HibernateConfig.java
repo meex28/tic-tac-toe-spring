@@ -1,4 +1,4 @@
-package com.example.tictactoespring;
+package com.example.tictactoespring.config;
 
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
