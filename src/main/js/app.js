@@ -12,6 +12,8 @@ import Menu from "./menu";
 import GameBoard from "./game-board";
 import Game from "./game";
 
+import './main.css'
+
 const App = () => {
     return (
         <div className="App">

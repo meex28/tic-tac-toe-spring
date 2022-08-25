@@ -2,6 +2,7 @@
   "name": "tictactoe-react-2",
   "version": "0.1.0",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "@babel/core": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
@@ -43,6 +44,8 @@
   },
   "devDependencies": {
     "react-router": "^6.3.0",
-    "react-router-dom": "^6.3.0"
+    "react-router-dom": "^6.3.0",
+    "css-loader": "^5.2.7",
+    "style-loader": "^2.0.0"
   }
 }
