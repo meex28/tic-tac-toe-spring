@@ -8,6 +8,8 @@ import javax.persistence.*;
 
 @Entity
 public class GameSession {
+    private final String startingBoard = "_________";
+
     @Getter
     @Setter
     @Id
@@ -67,6 +69,7 @@ public class GameSession {
 
     public void startGame(){
         this.status = (this.playedGames % 2 == 0) ? GameStatus.HOST_TURN : GameStatus.GUEST_TURN;
+        this.board = startingBoard;
     }
 
     public void switchTurn(){
@@ -80,7 +83,7 @@ public class GameSession {
 
     public GameSession(User host){
         this.host = host;
-        this.board = "_________";
+        this.board = startingBoard;
         this.hostResult = 0;
         this.guestResult = 0;
         this.status = GameStatus.WAITING_FOR_OPPONENT;

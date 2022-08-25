@@ -43,9 +43,23 @@ public class GameSessionController {
     public ResponseEntity<String> setReady(@RequestBody String token){
         try{
             gameSessionService.setReady(token);
-            return ResponseEntity.ok("{\"message\":\"OK\"}");
+            return ResponseEntity.ok(buildJSONMessage("OK"));
         }catch (TokenException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\""+e.getMessage()+"\"}");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(buildJSONMessage(e.getMessage()));
         }
+    }
+
+    @PostMapping(value = "/move")
+    public ResponseEntity<String> makeMove(@RequestBody String token, @RequestParam int field){
+        try{
+            gameSessionService.makeMove(token, field);
+            return ResponseEntity.ok(buildJSONMessage("OK"));
+        } catch (TokenException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(buildJSONMessage(e.getMessage()));
+        }
+    }
+
+    private String buildJSONMessage(String message){
+        return "{\"message\":\""+message+"\"}";
     }
 }

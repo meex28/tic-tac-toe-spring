@@ -12,18 +12,42 @@ const Game = () => {
     const [result, setResult] = useState({"host": location.state.game.ownResult, "opponent": location.state.game.opponentResult})
     const [status, setStatus] = useState(location.state.game.status)
 
+    const endedGameStatuses = ['DRAW', 'OPPONENT_WON', 'YOU_WON']
+
     useEffect(() =>{
         console.log("GAME")
         console.log(location.state.game)
     }, [])
 
     // Send request with clicking
-    const clickField = (field) =>{
-        console.log(field)
+    const clickField = async (field) =>{
+        //TODO: check if field is empty
+
+        if(status !== 'YOUR_TURN')
+            return;
+
+        const params = new URLSearchParams();
+        params.append("field", field)
+
+        let response = await fetch("/api/game/move?"+params.toString(),{
+            method: 'POST',
+            body: location.state.token
+        });
+
+        if(response.status !== 200){
+            alert(response.json().message)
+        }
     }
 
     const handleMessage = (msg, topic) =>{
-        setStatus(msg.status)
+        if(endedGameStatuses.includes(status)){
+            if(["OPPONENT_LEFT", "GAME_ENDED", "OPPONENT_NOT_READY",
+                "YOUR_TURN", "OPPONENT_TURN"].includes(msg.status))
+                setStatus(msg.status)
+        }else
+            setStatus(msg.status)
+
+
         setResult({
             "host": msg.ownResult,
             "opponent": msg.opponentResult
@@ -55,18 +79,16 @@ const Game = () => {
     }
 
     const readyButton = () =>{
-        if(status === 'NOT_READY'){
+        if(endedGameStatuses.includes(status) || status === 'NOT_READY'){
             return <button onClick={setReady}>Ready</button>
         }
     }
 
     return (
         <div>
-            {/*TODO: change url to window.location*/}
             <SockJsClient url={"/ws-register"}
                           topics={["/topic/"+location.state.token]}
-                          onMessage={handleMessage}
-                        debug={true}/>
+                          onMessage={handleMessage}/>
             <Scoreboard host={location.state.host} opponent={opponent} result={result} status={status}/>
             <GameBoard board={board} handleClick={clickField}/>
             <button onClick={leaveGame}>Leave</button>

@@ -107,6 +107,8 @@ public class GameSessionService {
     }
 
     public void makeMove(String token, int field) throws TokenException {
+        //TODO: check game status
+
         GameSession gameSession = gameSessionRepository.getByToken(token);
 
         if(!userService.isTokenValid(token) || gameSession == null)
@@ -133,10 +135,10 @@ public class GameSessionService {
 
         char potentialWinner = GameSessionUtils.checkWinner(board);
 
-        // host - O
-        // guest - X
+        // host - X
+        // guest - O
         // check if someone win and send message to players
-        if(potentialWinner == 'O'){
+        if(potentialWinner == 'X'){
             gameSession.incrementHostResult();
 
             gameSession.setStatus(GameStatus.YOU_WON);
@@ -147,7 +149,7 @@ public class GameSessionService {
 
             gameSession.setStatus(GameStatus.NOT_READY);
             gameSession.addPlayedGame();
-        }else if(potentialWinner == 'X'){
+        }else if(potentialWinner == 'O'){
             gameSession.incrementGuestResult();
 
             gameSession.setStatus(GameStatus.OPPONENT_WON);
