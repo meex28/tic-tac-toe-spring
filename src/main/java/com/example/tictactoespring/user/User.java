@@ -1,11 +1,7 @@
 package com.example.tictactoespring.user;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Date;
@@ -13,18 +9,19 @@ import java.util.Objects;
 
 @Entity
 public class User implements Serializable {
-    @Getter
-    @Setter
+//    @Getter
+//    @Setter
     @Id
+    @Column(nullable = false)
     private String token;
-
-    @Getter
-    @Setter
+//
+//    @Getter
+//    @Setter
     @Column(nullable = false)
     private String nickname;
-
-    @Getter
-    @Setter
+//
+//    @Getter
+//    @Setter
     @Column(nullable = false)
     private Date created;
 
@@ -51,5 +48,29 @@ public class User implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(token, user.token);
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

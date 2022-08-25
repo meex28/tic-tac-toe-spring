@@ -16,14 +16,14 @@ public class GameSession {
 
     @Getter
     @Setter
-    @OneToOne(optional = false)
-    @JoinColumn(name="host_token", referencedColumnName = "token")
+    @OneToOne(optional = false, targetEntity = User.class)
+//    @JoinColumn(name="host_token", referencedColumnName = "token")
     private User host;
 
     @Getter
     @Setter
-    @OneToOne(optional = true)
-    @JoinColumn(name="guest_token", referencedColumnName = "token")
+    @OneToOne(optional = true, targetEntity = User.class)
+//    @JoinColumn(name="guest_token", referencedColumnName = "token")
     private User guest;
 
 
@@ -63,6 +63,10 @@ public class GameSession {
 
     public void addPlayedGame(){
         this.playedGames++;
+    }
+
+    public void startGame(){
+        this.status = (this.playedGames % 2 == 0) ? GameStatus.HOST_TURN : GameStatus.GUEST_TURN;
     }
 
     public void switchTurn(){

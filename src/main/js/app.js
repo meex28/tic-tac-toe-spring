@@ -1,14 +1,32 @@
-// const React = require('react');
-// const ReactDOM = require('react-dom');
-// const client = require('./client');
-
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom'
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Link
+} from "react-router-dom";
+
+import StartComponent from "./startComponent";
+import Menu from "./menu";
+import GameBoard from "./game-board";
+import Game from "./game";
 
 const App = () => {
     return (
-        <div>
-            <h1>Orzel</h1>
+        <div className="App">
+            <Router>
+                <div>
+                    <Routes>
+                        <Route exact path="/"
+                               element={<StartComponent/>}/>
+                        <Route exact path="/menu"
+                               element={<Menu/>}/>
+                        <Route exact path="/game"
+                               element={<Game/>}/>
+                    </Routes>
+                </div>
+            </Router>
         </div>
     );
 };

@@ -25,17 +25,31 @@ public class GameSessionRepository {
 
     @Transactional
     public void save(GameSession gameSession){
-        sessionFactory.getCurrentSession().save(gameSession);
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        session.save(gameSession);
+        session.getTransaction().commit();
     }
 
     @Transactional
-    public void delete(GameSession gameSession){sessionFactory.getCurrentSession().delete(gameSession);}
+    public void delete(GameSession gameSession){
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        session.delete(gameSession);
+        session.getTransaction().commit();
+    }
 
     @Transactional
-    public void update(GameSession gameSession){sessionFactory.getCurrentSession().update(gameSession);}
+    public void update(GameSession gameSession){
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        session.update(gameSession);
+        session.getTransaction().commit();
+    }
 
     public GameSession getByToken(String token){
         Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<GameSession> cq = cb.createQuery(GameSession.class);
@@ -52,6 +66,8 @@ public class GameSessionRepository {
 
         List<GameSession> result = queryHost.getResultList();
         result.addAll(queryGuest.getResultList());
+
+        session.getTransaction().commit();
 
         return result.size()==0 ? null : result.get(0);
     }

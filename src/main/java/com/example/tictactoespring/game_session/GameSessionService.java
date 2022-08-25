@@ -34,15 +34,16 @@ public class GameSessionService {
                                     gameSession.getBoard());
     }
 
-    public GameSessionDTO joinSession(String guestToken, String hostToken) throws TokenException {
+    public GameSessionDTO joinSession(String hostToken, String guestToken) throws TokenException {
         if(!userService.isTokenValid(guestToken))
             throw new TokenException("Invalid token");
 
         GameSession gameSession = gameSessionRepository.getByToken(hostToken);
 
         // check if there is game session played by given player and if there is free place
-        if(gameSession == null || gameSession.getGuest() != null)
+        if(gameSession == null || gameSession.getGuest() != null){
             throw new TokenException("There is no session with given token or its already full");
+        }
 
         // get guest user by token, update him in as player in session and change game status
         User guest = userService.getUserByToken(guestToken);
@@ -71,6 +72,40 @@ public class GameSessionService {
 
     }
 
+    public void setReady(String token) throws TokenException {
+        if(!userService.isTokenValid(token))
+            throw new TokenException("Invalid token");
+
+        GameSession gameSession = gameSessionRepository.getByToken(token);
+
+        // check if there is game session played by given player and if there is free place
+        if(gameSession == null || gameSession.getGuest() == null){
+            throw new TokenException("There is no session with given token or there is no opponent");
+        }
+
+        GameStatus status = gameSession.getStatus();
+
+        switch (status){
+            case NOT_READY -> {
+                if(gameSession.getHost().getToken().equals(token))
+                    gameSession.setStatus(GameStatus.GUEST_NOT_READY);
+                else
+                    gameSession.setStatus(GameStatus.HOST_NOT_READY);
+            }
+            case HOST_NOT_READY -> {
+                if (gameSession.getHost().getToken().equals(token))
+                    gameSession.startGame();
+            }
+            case GUEST_NOT_READY -> {
+                if(gameSession.getGuest().getToken().equals(token))
+                    gameSession.startGame();
+            }
+        }
+
+        gameSessionRepository.update(gameSession);
+        sendSessionMessages(gameSession);
+    }
+
     public void makeMove(String token, int field) throws TokenException {
         GameSession gameSession = gameSessionRepository.getByToken(token);
 
@@ -90,7 +125,7 @@ public class GameSessionService {
         String board = gameSession.getBoard();
 
         // only empty field can be marked
-        if(board.charAt(field) == '_')
+        if(board.charAt(field) != '_')
             return;
 
         board = GameSessionUtils.setBoardField(field, board, playerSymbol);
@@ -142,6 +177,15 @@ public class GameSessionService {
                                                     gameSession.getGuestResult(), gameSession.getStatus(),
                                                     gameSession.getBoard());
 
+        // translate game status for host
+        GameStatus status = message.getStatus();
+        switch (status){
+            case HOST_NOT_READY -> message.setStatus(GameStatus.NOT_READY);
+            case GUEST_NOT_READY -> message.setStatus(GameStatus.OPPONENT_NOT_READY);
+            case HOST_TURN -> message.setStatus(GameStatus.YOUR_TURN);
+            case GUEST_TURN -> message.setStatus(GameStatus.OPPONENT_TURN);
+        }
+
         messagingTemplate.convertAndSend("/topic/"+gameSession.getHost().getToken(), message);
     }
 
@@ -150,6 +194,15 @@ public class GameSessionService {
         GameSessionDTO message = new GameSessionDTO(gameSession.getHost().getNickname(), gameSession.getGuestResult(),
                 gameSession.getHostResult(), gameSession.getStatus(),
                 gameSession.getBoard());
+
+        // translate game status for guest
+        GameStatus status = message.getStatus();
+        switch (status){
+            case HOST_NOT_READY -> message.setStatus(GameStatus.OPPONENT_NOT_READY);
+            case GUEST_NOT_READY -> message.setStatus(GameStatus.NOT_READY);
+            case HOST_TURN -> message.setStatus(GameStatus.OPPONENT_TURN);
+            case GUEST_TURN -> message.setStatus(GameStatus.YOUR_TURN);
+        }
 
         messagingTemplate.convertAndSend("/topic/"+gameSession.getGuest().getToken(), message);
     }
