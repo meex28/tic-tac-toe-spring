@@ -39,6 +39,16 @@ public class GameSessionController {
         }
     }
 
+    @PostMapping("/leave")
+    public ResponseEntity<String> leaveSession(@RequestBody String token){
+        try{
+            gameSessionService.leaveSession(token);
+            return ResponseEntity.ok(buildJSONMessage("OK"));
+        }catch (TokenException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(buildJSONMessage(e.getMessage()));
+        }
+    }
+
     @PostMapping(value = "/ready", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> setReady(@RequestBody String token){
         try{

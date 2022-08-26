@@ -32,20 +32,33 @@ const Menu = () => {
             return;
         }
 
+        let isReponseOK = true;
+
         let game = await fetch("/api/game/join/"+opponentToken,{
             method: 'POST',
             body: token
-        }).then((response) => response.json());
-
-        console.log(game);
-
-        navigate('/game', {
-            state: {
-                game: game,
-                token: token,
-                host: nickname
+        }).then((response) => {
+            if(!response.ok){
+                throw Error("Invalid token!");
+            }else{
+                return response.json();
             }
+        }).catch((err) =>{
+            isReponseOK = false;
+            alert(err.message)
         });
+
+        if(isReponseOK){
+            console.log(game);
+
+            navigate('/game', {
+                state: {
+                    game: game,
+                    token: token,
+                    host: nickname
+                }
+            });
+        }
     }
 
     // send request to start new AI game and navigate to new page

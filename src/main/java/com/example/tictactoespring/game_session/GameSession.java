@@ -79,6 +79,14 @@ public class GameSession {
             this.status = GameStatus.HOST_TURN;
     }
 
+    public void initialize(){
+        this.status = GameStatus.NOT_READY;
+        this.board = startingBoard;
+        this.hostResult = 0;
+        this.guestResult = 0;
+        this.playedGames = 0;
+    }
+
     public GameSession(){}
 
     public GameSession(User host){

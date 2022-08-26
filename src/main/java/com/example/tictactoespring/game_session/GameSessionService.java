@@ -48,7 +48,8 @@ public class GameSessionService {
         // get guest user by token, update him in as player in session and change game status
         User guest = userService.getUserByToken(guestToken);
         gameSession.setGuest(guest);
-        gameSession.setStatus(GameStatus.NOT_READY);
+        gameSession.initialize();
+
         gameSessionRepository.update(gameSession);
 
         sendSessionMessageToHost(gameSession);
@@ -58,8 +59,32 @@ public class GameSessionService {
     }
 
     //TODO: add leaving sessions
-    public void leaveSession(String token){
+    public void leaveSession(String token) throws TokenException {
+        if(!userService.isTokenValid(token))
+            throw new TokenException("Invalid token");
 
+        GameSession gameSession = gameSessionRepository.getByToken(token);
+
+        if(gameSession == null){
+            throw new TokenException("Player is not in session");
+        }
+
+        // if player with token is guest then session stays active
+        // if player is host then session is ended
+        User guest = gameSession.getGuest();
+        if(guest != null && guest.getToken().equals(token)){
+            gameSession.setGuest(null);
+            gameSession.setStatus(GameStatus.OPPONENT_LEFT);
+            sendSessionMessageToHost(gameSession);
+            gameSession.setStatus(GameStatus.WAITING_FOR_OPPONENT);
+            gameSessionRepository.update(gameSession);
+        }else{
+            gameSessionRepository.delete(gameSession);
+            gameSession.setHost(null);
+            gameSession.setStatus(GameStatus.GAME_ENDED);
+            if(gameSession.getGuest() != null)
+                sendSessionMessageToGuest(gameSession);
+        }
     }
 
     //TODO: add joining random sessions
@@ -175,7 +200,8 @@ public class GameSessionService {
 
     private void sendSessionMessageToHost(GameSession gameSession){
         // create DTO object for host, opponent result is guest result and own result is host result
-        GameSessionDTO message = new GameSessionDTO(gameSession.getGuest().getNickname(), gameSession.getHostResult(),
+        String opponent = gameSession.getGuest() == null ? "NONE" : gameSession.getGuest().getNickname();
+        GameSessionDTO message = new GameSessionDTO(opponent, gameSession.getHostResult(),
                                                     gameSession.getGuestResult(), gameSession.getStatus(),
                                                     gameSession.getBoard());
 
@@ -193,7 +219,8 @@ public class GameSessionService {
 
     private void sendSessionMessageToGuest(GameSession gameSession){
         // create DTO object for guest, opponent result is host result and own result is guest result
-        GameSessionDTO message = new GameSessionDTO(gameSession.getHost().getNickname(), gameSession.getGuestResult(),
+        String opponent = gameSession.getHost() == null ? "NONE" : gameSession.getHost().getNickname();
+        GameSessionDTO message = new GameSessionDTO(opponent, gameSession.getGuestResult(),
                 gameSession.getHostResult(), gameSession.getStatus(),
                 gameSession.getBoard());
 

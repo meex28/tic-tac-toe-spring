@@ -126,4 +126,31 @@ class TicTacToeSpringApplicationTests {
         session = gameSessionRepository.getByToken(host);
         assert session.getStatus()  == GameStatus.HOST_TURN;
     }
+
+    @Test
+    void leavingSession() throws TokenException{
+        String host = userService.createUser("host");
+        String guest = userService.createUser("guest");
+
+        gameSessionService.createSession(host);
+        gameSessionService.joinSession(host, guest);
+
+        gameSessionService.leaveSession(guest);
+        GameSession session = gameSessionRepository.getByToken(host);
+        assert session.getGuest() == null;
+        assert session.getHost().getToken().equals(host);
+
+        boolean isTokenException = false;
+        try{
+            gameSessionService.leaveSession(guest);
+        }catch (TokenException e){
+            isTokenException = true;
+        }
+        assert isTokenException;
+
+        gameSessionService.joinSession(host, guest);
+        gameSessionService.leaveSession(host);
+        assert gameSessionRepository.getByToken(host) == null;
+        assert gameSessionRepository.getByToken(guest) == null;
+    }
 }

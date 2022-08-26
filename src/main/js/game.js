@@ -3,9 +3,11 @@ import GameBoard from "./game-board";
 import Scoreboard from "./scoreboard";
 import SockJsClient from 'react-stomp'
 import {useLocation} from "react-router";
+import {useNavigate} from "react-router-dom";
 
 const Game = () => {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const [board, setBoard] = useState(location.state.game.board);
     const [opponent, setOpponent] = useState(location.state.game.opponent)
@@ -55,16 +57,27 @@ const Game = () => {
         setBoard(msg.board)
         setOpponent(msg.opponent)
 
-        if(status === "OPPONENT_LEFT"){
+        if(msg.status === "OPPONENT_LEFT"){
             alert("Opponent left game!")
             setStatus("WAITING_FOR_OPPONENT")
-            //TODO: clear board (?)
+        }else if(msg.status === "GAME_ENDED"){
+            alert("Host left session. Session is deleted.")
+            navigate(-1)
         }
     }
 
     // Send request to leave and navigate to menu
-    const leaveGame = () =>{
-        console.log("LEAVE")
+    const leaveGame = async () =>{
+        let response = await fetch("/api/game/leave",{
+            method: 'POST',
+            body: location.state.token
+        });
+
+        if(response.status !== 200){
+            alert(response.json().message)
+        }else{
+            navigate(-1)
+        }
     }
 
     const setReady = async () =>{
@@ -88,7 +101,8 @@ const Game = () => {
         <div>
             <SockJsClient url={"/ws-register"}
                           topics={["/topic/"+location.state.token]}
-                          onMessage={handleMessage}/>
+                          onMessage={handleMessage}
+                            debug={true}/>
             <Scoreboard host={location.state.host} opponent={opponent} result={result} status={status}/>
             <GameBoard board={board} handleClick={clickField}/>
             <button onClick={leaveGame}>Leave</button>
