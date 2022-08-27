@@ -98,15 +98,17 @@ const Game = () => {
     }
 
     return (
-        <div>
+        <div className={"game-container"}>
             <SockJsClient url={"/ws-register"}
                           topics={["/topic/"+location.state.token]}
                           onMessage={handleMessage}
                             debug={true}/>
-            <Scoreboard host={location.state.host} opponent={opponent} result={result} status={status}/>
+            <div className={"info-container"}>
+                <Scoreboard host={location.state.host} opponent={opponent} result={result} status={status}/>
+                <button onClick={leaveGame}>Leave</button>
+                {readyButton()}
+            </div>
             <GameBoard board={board} handleClick={clickField}/>
-            <button onClick={leaveGame}>Leave</button>
-            {readyButton()}
         </div>
     );
 

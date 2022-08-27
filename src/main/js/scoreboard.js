@@ -1,21 +1,20 @@
 import React from 'react';
+import Score from "./score";
 
 const Scoreboard = (props) => {
+    const parseStatus = (s) =>{
+        s = s.replaceAll('_', ' ').toLowerCase();
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
     return (
         <div>
             <div className="scoreboard">
-                <div>
-                    <h2>{props.host}</h2>
-                </div>
-                <div>
-                    <h2>{props.result.host} : {props.result.opponent}</h2>
-                </div>
-                <div>
-                    <h2>{props.opponent}</h2>
-                </div>
+                <Score player={props.host} score={props.result.host}/>
+                <Score player={props.opponent} score={props.result.opponent}/>
             </div>
             <div className="status">
-                <h3>{props.status}</h3>
+                <h3>{parseStatus(props.status)}</h3>
             </div>
         </div>
     );

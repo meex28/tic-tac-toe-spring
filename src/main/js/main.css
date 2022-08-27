@@ -1,8 +1,7 @@
-.board
-{
+.board {
     width: 600px;
     height: 600px;
-    margin: 0 auto;
+    margin: auto;
     background-color: #34495e;
     color: #fff;
     border: 6px solid #2c3e50;
@@ -12,8 +11,7 @@
     grid-template: repeat(3, 1fr) / repeat(3, 1fr);
 }
 
-.field
-{
+.field {
     border: 6px solid #2c3e50;
     border-radius: 2px;
     font-family: Helvetica;
@@ -22,4 +20,67 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+button {
+    color: #1cc49d;
+    background-color: #34495e;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 3em;
+    width: 8em;
+    font-size: large;
+    font-weight: 600;
+}
+
+.scoreboard {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 700px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.scoreboard-name,
+.scoreboard-score {
+    padding: 10px;
+    text-align: center;
+}
+
+.scoreboard-name {
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
+    font-size: 2em;
+    width: 300px;
+    text-align: center;
+}
+
+.scoreboard-score {
+    font-size: 4em;
+}
+
+.game-container{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: auto;
+}
+
+.info-container{
+    margin: auto;
+    width: 600px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.info-item{
+    margin: 10px auto;
+}
+
+.status{
+    font-size: 1.5em;
+    font-family: 'Quicksand', sans-serif;
+    text-align: center;
 }
