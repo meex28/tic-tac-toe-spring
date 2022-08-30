@@ -46,6 +46,7 @@
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
     "css-loader": "^5.2.7",
-    "style-loader": "^2.0.0"
+    "style-loader": "^2.0.0",
+    "react-hot-toast": "^2.3.0"
   }
 }

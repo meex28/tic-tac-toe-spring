@@ -9,10 +9,10 @@ import {
 
 import StartComponent from "./startComponent";
 import Menu from "./menu";
-import GameBoard from "./game-board";
 import Game from "./game";
 
 import './main.css'
+import toast, {Toaster} from "react-hot-toast";
 
 const App = () => {
     return (
@@ -29,6 +29,13 @@ const App = () => {
                     </Routes>
                 </div>
             </Router>
+            <Toaster position={'top-center'} toastOptions={{
+                duration: 1000
+            }}/>
+            {/*<div>*/}
+            {/*    <button onClick={notify}>Make me a toast</button>*/}
+            {/*    <Toaster />*/}
+            {/*</div>*/}
         </div>
     );
 };

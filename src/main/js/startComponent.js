@@ -6,7 +6,10 @@ const StartComponent = () => {
     const navigate = useNavigate();
 
     const start = async (nickname) =>{
-        // let token = "token"
+        if(nickname.length > 16 || nickname.length === 0){
+            alert("Nickname length is more than 0 and less than 17")
+            return null;
+        }
 
         const response = await fetch('api/user/start',
             {
@@ -20,9 +23,9 @@ const StartComponent = () => {
     }
 
     return (
-        <div>
+        <div className={"container centered-absolute"}>
             <h1>Type your nickname</h1>
-            <input type={"text"} id={"nickname-input"}/>
+            <input type={"text"} id={"nickname-input"} autoComplete={"off"}/>
             <br/>
             <button onClick={() => start(document.getElementById("nickname-input").value)}>Start</button>
         </div>

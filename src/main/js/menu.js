@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation} from "react-router";
 import {useNavigate} from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Menu = () => {
     const location = useLocation();
@@ -66,14 +67,28 @@ const Menu = () => {
 
     }
 
+    const copyToken = async () =>{
+        toast.success("Copied token to clipboard!")
+        if ('clipboard' in navigator) {
+            return await navigator.clipboard.writeText(token);
+        } else {
+            return document.execCommand('copy', true, token);
+        }
+    }
+
     return (
         <div>
-            <h1>{nickname}</h1>
-            <p>Your token: {token}</p>
-            <button onClick={startNewGame}>Start new game</button>
-            <button onClick={joinGame}>Join game</button>
-            <button onClick={startNewAiGame}>Start game with AI</button>
+            <div className={"container centered-absolute"}>
+                <h1>{nickname}</h1>
+                <h2 onClick={copyToken}>Your token: {token}</h2>
+                <div className={"buttons-container"}>
+                    <button onClick={startNewGame}>Start new game</button>
+                    <button onClick={joinGame}>Join game</button>
+                    <button onClick={startNewAiGame}>Start game with AI</button>
+                </div>
+            </div>
         </div>
+
     );
 };
 

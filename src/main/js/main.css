@@ -38,8 +38,18 @@ button {
 .scoreboard {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    width: 700px;
+    width: 900px;
     font-family: 'Quicksand', sans-serif;
+}
+
+.info-container-button{
+    margin-top: 10px;
+}
+
+.score{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .scoreboard-name,
@@ -63,7 +73,7 @@ button {
 .game-container{
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    margin: auto;
+    grid-gap: 200px;
 }
 
 .info-container{
@@ -83,4 +93,39 @@ button {
     font-size: 1.5em;
     font-family: 'Quicksand', sans-serif;
     text-align: center;
+}
+
+.container{
+    height: 200px;
+    width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #1cc49d;
+}
+
+.buttons-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 600px;
+    margin-top: 30px;
+}
+
+.centered-absolute{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+input{
+    border-radius: 50px;
+    width: 16em;
+    height: 2em;
+    text-align: center;
+    font-size: 2em;
+    border: 2px #34495e solid;
+    color: #1cc49d;
+
 }

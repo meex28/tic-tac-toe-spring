@@ -4,6 +4,7 @@ import Scoreboard from "./scoreboard";
 import SockJsClient from 'react-stomp'
 import {useLocation} from "react-router";
 import {useNavigate} from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Game = () => {
     const location = useLocation();
@@ -58,7 +59,7 @@ const Game = () => {
         setOpponent(msg.opponent)
 
         if(msg.status === "OPPONENT_LEFT"){
-            alert("Opponent left game!")
+            toast.error("Opponent left game!")
             setStatus("WAITING_FOR_OPPONENT")
         }else if(msg.status === "GAME_ENDED"){
             alert("Host left session. Session is deleted.")
@@ -93,19 +94,19 @@ const Game = () => {
 
     const readyButton = () =>{
         if(endedGameStatuses.includes(status) || status === 'NOT_READY'){
-            return <button onClick={setReady}>Ready</button>
+            return <button onClick={setReady} className={"info-container-button"}>Ready</button>
         }
     }
 
     return (
-        <div className={"game-container"}>
+        <div className={"game-container centered-absolute"}>
             <SockJsClient url={"/ws-register"}
                           topics={["/topic/"+location.state.token]}
                           onMessage={handleMessage}
                             debug={true}/>
             <div className={"info-container"}>
                 <Scoreboard host={location.state.host} opponent={opponent} result={result} status={status}/>
-                <button onClick={leaveGame}>Leave</button>
+                <button onClick={leaveGame} className={"info-container-button"}>Leave</button>
                 {readyButton()}
             </div>
             <GameBoard board={board} handleClick={clickField}/>
