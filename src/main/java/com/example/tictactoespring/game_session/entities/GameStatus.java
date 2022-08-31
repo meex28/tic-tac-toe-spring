@@ -1,4 +1,4 @@
-package com.example.tictactoespring.game_session;
+package com.example.tictactoespring.game_session.entities;
 
 public enum GameStatus {
     WAITING_FOR_OPPONENT, NOT_READY, HOST_NOT_READY, GUEST_NOT_READY, OPPONENT_NOT_READY,

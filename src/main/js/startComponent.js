@@ -1,13 +1,14 @@
 import React, {useEffect, useRef} from 'react';
 import {useNavigate} from "react-router-dom";
 import {type} from "@testing-library/user-event/dist/type";
+import toast from "react-hot-toast";
 
 const StartComponent = () => {
     const navigate = useNavigate();
 
     const start = async (nickname) =>{
         if(nickname.length > 16 || nickname.length === 0){
-            alert("Nickname length is more than 0 and less than 17")
+            toast.error("Nickname length is more than 0 and less than 17")
             return null;
         }
 

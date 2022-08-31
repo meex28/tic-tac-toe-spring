@@ -1,6 +1,9 @@
 package com.example.tictactoespring;
 
 import com.example.tictactoespring.game_session.*;
+import com.example.tictactoespring.game_session.entities.GameSession;
+import com.example.tictactoespring.game_session.entities.GameStatus;
+import com.example.tictactoespring.game_session.gamesession_with_ai.minimax_algorithm.MiniMaxSolutions;
 import com.example.tictactoespring.user.User;
 import com.example.tictactoespring.user.UserController;
 import com.example.tictactoespring.user.UserRepository;
@@ -47,17 +50,6 @@ class TicTacToeSpringApplicationTests {
         userController.userStart("asd");
     }
 
-//    @Test
-//    void testTokenGeneration(){
-//        for(int i = 0; i<10; i++){
-//            try{
-//                System.out.println(userService.generateToken("nickname"));
-//            }catch(Exception e){
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
     @Test
     void testCheckingWinner(){
         String board = "_________";
@@ -100,7 +92,7 @@ class TicTacToeSpringApplicationTests {
         String host = userService.createUser("host");
         String guest = userService.createUser("guest");
 
-        gameSessionService.createSession(host);
+        gameSessionService.createSession(host, false);
         gameSessionService.joinSession(host, guest);
 
         GameSession session = gameSessionRepository.getByToken(host);
@@ -132,7 +124,7 @@ class TicTacToeSpringApplicationTests {
         String host = userService.createUser("host");
         String guest = userService.createUser("guest");
 
-        gameSessionService.createSession(host);
+        gameSessionService.createSession(host, false);
         gameSessionService.joinSession(host, guest);
 
         gameSessionService.leaveSession(guest);
@@ -152,5 +144,26 @@ class TicTacToeSpringApplicationTests {
         gameSessionService.leaveSession(host);
         assert gameSessionRepository.getByToken(host) == null;
         assert gameSessionRepository.getByToken(guest) == null;
+    }
+
+    @Test
+    void testMiniMax(){
+        String board =  "___" +
+                        "OXX" +
+                        "_XO";
+        String newBoard = MiniMaxSolutions.calculateNextMove(board, 3, 'X', 'O');
+        System.out.println(newBoard);
+    }
+
+    @Test
+    void testSessionWithAi() throws TokenException {
+        String token = userService.createUser("host");
+        gameSessionService.createSession(token, true);
+        GameSession gameSession = gameSessionRepository.getByToken(token);
+        gameSessionService.setReady(token);
+        gameSessionService.makeMove(token, 4);
+
+        gameSession = gameSessionRepository.getByToken(token);
+        System.out.println(gameSession.getBoard());
     }
 }

@@ -26,6 +26,6 @@
 
         <!-- Annotated entity classes -->
         <mapping class="com.example.tictactoespring.user.User"/>
-        <mapping class="com.example.tictactoespring.game_session.GameSession"/>
+        <mapping class="com.example.tictactoespring.game_session.entities.GameSession"/>
     </session-factory>
 </hibernate-configuration>

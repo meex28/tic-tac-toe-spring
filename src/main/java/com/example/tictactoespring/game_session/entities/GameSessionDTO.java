@@ -1,4 +1,4 @@
-package com.example.tictactoespring.game_session;
+package com.example.tictactoespring.game_session.entities;
 
 import lombok.Getter;
 import lombok.Setter;

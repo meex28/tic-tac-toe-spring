@@ -10,8 +10,8 @@ const Menu = () => {
     const navigate = useNavigate();
 
     // send request to start new game and navigate to new page
-    const startNewGame = async () =>{
-        let game = await fetch("/api/game/join",{
+    const startNewGame = async (isAi) =>{
+        let game = await fetch("/api/game/join?isAi="+isAi,{
             method: 'POST',
             body: token
         }).then((response) => response.json());
@@ -33,7 +33,7 @@ const Menu = () => {
             return;
         }
 
-        let isReponseOK = true;
+        let isResponseOk = true;
 
         let game = await fetch("/api/game/join/"+opponentToken,{
             method: 'POST',
@@ -45,11 +45,11 @@ const Menu = () => {
                 return response.json();
             }
         }).catch((err) =>{
-            isReponseOK = false;
+            isResponseOk = false;
             alert(err.message)
         });
 
-        if(isReponseOK){
+        if(isResponseOk){
             console.log(game);
 
             navigate('/game', {
@@ -60,11 +60,6 @@ const Menu = () => {
                 }
             });
         }
-    }
-
-    // send request to start new AI game and navigate to new page
-    const startNewAiGame = () =>{
-
     }
 
     const copyToken = async () =>{
@@ -82,9 +77,9 @@ const Menu = () => {
                 <h1>{nickname}</h1>
                 <h2 onClick={copyToken}>Your token: {token}</h2>
                 <div className={"buttons-container"}>
-                    <button onClick={startNewGame}>Start new game</button>
+                    <button onClick={() => startNewGame('0')}>Start new game</button>
                     <button onClick={joinGame}>Join game</button>
-                    <button onClick={startNewAiGame}>Start game with AI</button>
+                    <button onClick={() => startNewGame('1')}>Start game with AI</button>
                 </div>
             </div>
         </div>

@@ -1,12 +1,11 @@
 package com.example.tictactoespring.game_session;
 
 import com.example.tictactoespring.TokenException;
+import com.example.tictactoespring.game_session.entities.GameSessionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/game")
@@ -20,9 +19,9 @@ public class GameSessionController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<GameSessionDTO> createSession(@RequestBody String token){
+    public ResponseEntity<GameSessionDTO> createSession(@RequestBody String token, @RequestParam boolean isAi){
         try{
-            GameSessionDTO gameSession = gameSessionService.createSession(token);
+            GameSessionDTO gameSession = gameSessionService.createSession(token, isAi);
             return ResponseEntity.ok().body(gameSession);
         } catch (TokenException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);

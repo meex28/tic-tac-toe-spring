@@ -1,33 +1,52 @@
 package com.example.tictactoespring.game_session;
 
 import com.example.tictactoespring.TokenException;
+import com.example.tictactoespring.game_session.entities.GameSession;
+import com.example.tictactoespring.game_session.entities.GameSessionDTO;
+import com.example.tictactoespring.game_session.entities.GameStatus;
+import com.example.tictactoespring.game_session.gamesession_with_ai.ai_events.PlayerActionEvent;
 import com.example.tictactoespring.user.User;
 import com.example.tictactoespring.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GameSessionService {
     private final GameSessionRepository gameSessionRepository;
     private final UserService userService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final MessagingService messagingService;
 
     @Autowired
-    public GameSessionService(GameSessionRepository gameSessionRepository, UserService userService, SimpMessagingTemplate messagingTemplate) {
+    public GameSessionService(GameSessionRepository gameSessionRepository,
+                              UserService userService,
+                              ApplicationEventPublisher applicationEventPublisher,
+                              MessagingService messagingService) {
         this.gameSessionRepository = gameSessionRepository;
         this.userService = userService;
-        this.messagingTemplate = messagingTemplate;
+        this.applicationEventPublisher = applicationEventPublisher;
+        this.messagingService = messagingService;
     }
 
-    public GameSessionDTO createSession(String token) throws TokenException{
+    public GameSessionDTO createSession(String token, boolean isAi) throws TokenException{
         if(!userService.isTokenValid(token))
             throw new TokenException("Invalid token");
 
         User host = userService.getUserByToken(token);
         GameSession gameSession = new GameSession(host);
+        gameSession.setAI(isAi);
+        String opponentName = "None";
+
+        if(isAi){
+            opponentName = "AI";
+            gameSession.initialize();
+        }
 
         gameSessionRepository.save(gameSession);
+
+        if(isAi)
+            applicationEventPublisher.publishEvent(new PlayerActionEvent(this, token));
 
         return new GameSessionDTO("None", gameSession.getHostResult(),
                                     gameSession.getGuestResult(), gameSession.getStatus(),
@@ -52,13 +71,12 @@ public class GameSessionService {
 
         gameSessionRepository.update(gameSession);
 
-        sendSessionMessageToHost(gameSession);
+        messagingService.sendSessionMessageToHost(gameSession);
 
         return new GameSessionDTO(gameSession.getHost().getNickname(), gameSession.getGuestResult(),
                 gameSession.getHostResult(), gameSession.getStatus(), gameSession.getBoard());
     }
 
-    //TODO: add leaving sessions
     public void leaveSession(String token) throws TokenException {
         if(!userService.isTokenValid(token))
             throw new TokenException("Invalid token");
@@ -75,7 +93,7 @@ public class GameSessionService {
         if(guest != null && guest.getToken().equals(token)){
             gameSession.setGuest(null);
             gameSession.setStatus(GameStatus.OPPONENT_LEFT);
-            sendSessionMessageToHost(gameSession);
+            messagingService.sendSessionMessageToHost(gameSession);
             gameSession.setStatus(GameStatus.WAITING_FOR_OPPONENT);
             gameSessionRepository.update(gameSession);
         }else{
@@ -83,18 +101,13 @@ public class GameSessionService {
             gameSession.setHost(null);
             gameSession.setStatus(GameStatus.GAME_ENDED);
             if(gameSession.getGuest() != null)
-                sendSessionMessageToGuest(gameSession);
+                messagingService.sendSessionMessageToGuest(gameSession);
         }
     }
 
     //TODO: add joining random sessions
     public GameSessionDTO joinRandomSession(String token){
         return null;
-    }
-
-    //TODO: add AI
-    public void addAiToSesson(String token) {
-
     }
 
     public void setReady(String token) throws TokenException {
@@ -104,7 +117,7 @@ public class GameSessionService {
         GameSession gameSession = gameSessionRepository.getByToken(token);
 
         // check if there is game session played by given player and if there is free place
-        if(gameSession == null || gameSession.getGuest() == null){
+        if(gameSession == null || (gameSession.getGuest() == null && !gameSession.isAI())){
             throw new TokenException("There is no session with given token or there is no opponent");
         }
 
@@ -128,16 +141,23 @@ public class GameSessionService {
         }
 
         gameSessionRepository.update(gameSession);
-        sendSessionMessages(gameSession);
+        messagingService.sendSessionMessages(gameSession);
+        if(gameSession.isAI())
+            applicationEventPublisher.publishEvent(new PlayerActionEvent(this, token));
     }
 
     public void makeMove(String token, int field) throws TokenException {
-        //TODO: check game status
-
         GameSession gameSession = gameSessionRepository.getByToken(token);
 
         if(!userService.isTokenValid(token) || gameSession == null)
             throw new TokenException("Invalid token or not in game");
+
+        if(gameSession.getGuest() == null && !gameSession.isAI())
+            return;
+
+        if(!(gameSession.getHost().getToken().equals(token) && gameSession.getStatus().equals(GameStatus.HOST_TURN))
+        && !(gameSession.getGuest().getToken().equals(token) && gameSession.getStatus().equals(GameStatus.GUEST_TURN)))
+            return;
 
         if(field < 0 || field > 8)
             return;
@@ -167,10 +187,10 @@ public class GameSessionService {
             gameSession.incrementHostResult();
 
             gameSession.setStatus(GameStatus.YOU_WON);
-            sendSessionMessageToHost(gameSession);
+            messagingService.sendSessionMessageToHost(gameSession);
 
             gameSession.setStatus(GameStatus.OPPONENT_WON);
-            sendSessionMessageToGuest(gameSession);
+            messagingService.sendSessionMessageToGuest(gameSession);
 
             gameSession.setStatus(GameStatus.NOT_READY);
             gameSession.addPlayedGame();
@@ -178,66 +198,26 @@ public class GameSessionService {
             gameSession.incrementGuestResult();
 
             gameSession.setStatus(GameStatus.OPPONENT_WON);
-            sendSessionMessageToHost(gameSession);
+            messagingService.sendSessionMessageToHost(gameSession);
 
             gameSession.setStatus(GameStatus.YOU_WON);
-            sendSessionMessageToGuest(gameSession);
+            messagingService.sendSessionMessageToGuest(gameSession);
 
             gameSession.setStatus(GameStatus.NOT_READY);
             gameSession.addPlayedGame();
         }else if(potentialWinner == 'D'){
             gameSession.addPlayedGame();
             gameSession.setStatus(GameStatus.DRAW);
-            sendSessionMessages(gameSession);
+            messagingService.sendSessionMessages(gameSession);
             gameSession.setStatus(GameStatus.NOT_READY);
         }else{
             gameSession.switchTurn();
-            sendSessionMessages(gameSession);
+            messagingService.sendSessionMessages(gameSession);
         }
 
         gameSessionRepository.update(gameSession);
-    }
 
-    private void sendSessionMessageToHost(GameSession gameSession){
-        // create DTO object for host, opponent result is guest result and own result is host result
-        String opponent = gameSession.getGuest() == null ? "NONE" : gameSession.getGuest().getNickname();
-        GameSessionDTO message = new GameSessionDTO(opponent, gameSession.getHostResult(),
-                                                    gameSession.getGuestResult(), gameSession.getStatus(),
-                                                    gameSession.getBoard());
-
-        // translate game status for host
-        GameStatus status = message.getStatus();
-        switch (status){
-            case HOST_NOT_READY -> message.setStatus(GameStatus.NOT_READY);
-            case GUEST_NOT_READY -> message.setStatus(GameStatus.OPPONENT_NOT_READY);
-            case HOST_TURN -> message.setStatus(GameStatus.YOUR_TURN);
-            case GUEST_TURN -> message.setStatus(GameStatus.OPPONENT_TURN);
-        }
-
-        messagingTemplate.convertAndSend("/topic/"+gameSession.getHost().getToken(), message);
-    }
-
-    private void sendSessionMessageToGuest(GameSession gameSession){
-        // create DTO object for guest, opponent result is host result and own result is guest result
-        String opponent = gameSession.getHost() == null ? "NONE" : gameSession.getHost().getNickname();
-        GameSessionDTO message = new GameSessionDTO(opponent, gameSession.getGuestResult(),
-                gameSession.getHostResult(), gameSession.getStatus(),
-                gameSession.getBoard());
-
-        // translate game status for guest
-        GameStatus status = message.getStatus();
-        switch (status){
-            case HOST_NOT_READY -> message.setStatus(GameStatus.OPPONENT_NOT_READY);
-            case GUEST_NOT_READY -> message.setStatus(GameStatus.NOT_READY);
-            case HOST_TURN -> message.setStatus(GameStatus.OPPONENT_TURN);
-            case GUEST_TURN -> message.setStatus(GameStatus.YOUR_TURN);
-        }
-
-        messagingTemplate.convertAndSend("/topic/"+gameSession.getGuest().getToken(), message);
-    }
-
-    private void sendSessionMessages(GameSession gameSession){
-        sendSessionMessageToHost(gameSession);
-        sendSessionMessageToGuest(gameSession);
+        if(gameSession.isAI())
+            applicationEventPublisher.publishEvent(new PlayerActionEvent(this, token));
     }
 }

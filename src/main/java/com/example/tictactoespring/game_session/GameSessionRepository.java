@@ -1,6 +1,6 @@
 package com.example.tictactoespring.game_session;
 
-import com.example.tictactoespring.user.User;
+import com.example.tictactoespring.game_session.entities.GameSession;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
