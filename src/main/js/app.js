@@ -30,12 +30,11 @@ const App = () => {
                 </div>
             </Router>
             <Toaster position={'top-center'} toastOptions={{
-                duration: 1000
+                duration: 1000,
+                error:{
+                    duration: 2200
+                }
             }}/>
-            {/*<div>*/}
-            {/*    <button onClick={notify}>Make me a toast</button>*/}
-            {/*    <Toaster />*/}
-            {/*</div>*/}
         </div>
     );
 };
