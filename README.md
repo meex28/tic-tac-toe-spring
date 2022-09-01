@@ -1,16 +1,16 @@
-#Online TicTacToe
+# Online TicTacToe
 Classic pencil and paper game - tic-tac-toe. Created with Spring Boot, Hibernate and React.
 
-#General info
+# General info
 Project is classic Tic-tac-toe game that allows players to play online.
 To start playing type your nickname and create new game session or join to existing one. You can also play with "AI" opponent (based on minimax algorithm).
 
-#Features
+# Features
 * User recognition based on tokens
 * Playing with "AI" based on minimax algorithm
 * Simple joining to another game using token
 
-#Technologies
+# Technologies
 Core technologies:
 * Spring Boot 2.7.0
 * Hibernate 5.6.9 
