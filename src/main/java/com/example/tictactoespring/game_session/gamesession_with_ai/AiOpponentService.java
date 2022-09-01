@@ -8,6 +8,7 @@ import com.example.tictactoespring.game_session.entities.GameStatus;
 import com.example.tictactoespring.game_session.gamesession_with_ai.ai_events.PlayerActionEvent;
 import com.example.tictactoespring.game_session.gamesession_with_ai.minimax_algorithm.MiniMaxSolutions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +16,12 @@ import org.springframework.stereotype.Component;
 public class AiOpponentService {
     private final GameSessionRepository gameSessionRepository;
     private final MessagingService messagingService;
-    private final int defaultDepth = 3;
-    private final char defaultSymbol = 'O';
+
+    @Value("${ai.default-depth}")
+    private int defaultDepth;
+
+    @Value("${ai.default-symbol}")
+    private char defaultSymbol;
 
     @Autowired
     public AiOpponentService(GameSessionRepository gameSessionRepository, MessagingService messagingService) {
