@@ -61,7 +61,7 @@ public class UserService {
         String token = generateToken(nickname);
         User user = new User(token, nickname, new Date());
 
-        userRepository.add(user);
+        userRepository.save(user);
 
         return user.getToken();
     }

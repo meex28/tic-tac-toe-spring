@@ -8,11 +8,15 @@ import com.example.tictactoespring.user.User;
 import com.example.tictactoespring.user.UserController;
 import com.example.tictactoespring.user.UserRepository;
 import com.example.tictactoespring.user.UserService;
+import com.example.tictactoespring.user.user_stats.UserActivityEvent;
+import com.example.tictactoespring.user.user_stats.UserActivityService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 @SpringBootTest
 class TicTacToeSpringApplicationTests {
@@ -31,6 +35,9 @@ class TicTacToeSpringApplicationTests {
     @Autowired
     private GameSessionService gameSessionService;
 
+    @Autowired
+    private UserActivityService userActivityService;
+
     @Test
     void contextLoads() {
     }
@@ -38,7 +45,7 @@ class TicTacToeSpringApplicationTests {
     @Test
     void testUserRepo(){
         User user = new User("testToken", "testNickname", new Date());
-        userRepository.add(user);
+        userRepository.save(user);
         System.out.println(userRepository.get("testToken"));
         userRepository.delete("testToken");
         System.out.println(userRepository.get("testToken"));
@@ -165,5 +172,31 @@ class TicTacToeSpringApplicationTests {
 
         gameSession = gameSessionRepository.getByToken(token);
         System.out.println(gameSession.getBoard());
+    }
+
+    @Test
+    void testUserRepoWithActivity(){
+        User testUser = new User();
+        testUser.setNickname("test");
+        testUser.setToken("token");
+        Date lastActivity = new Date(100, Calendar.JANUARY,1,1,1,1);
+        testUser.setLastActivity(lastActivity);
+
+        userRepository.save(testUser);
+
+        Date testDate = new Date(110, Calendar.JANUARY,1,1,1,1);
+        List<User> inactiveUsers = userRepository.getUsersByLastActivityAfterDate(testDate);
+
+        assert inactiveUsers.size() == 1;
+        assert inactiveUsers.get(0).getNickname().equals(testUser.getNickname())
+                && inactiveUsers.get(0).getToken().equals(testUser.getToken());
+
+        // clean after test
+        userRepository.delete(testUser);
+    }
+
+    @Test
+    void deleteInActiveUsers(){
+        userActivityService.deleteInactiveUsers();
     }
 }

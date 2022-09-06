@@ -9,28 +9,22 @@ import java.util.Objects;
 
 @Entity
 public class User implements Serializable {
-//    @Getter
-//    @Setter
     @Id
     @Column(nullable = false)
     private String token;
-//
-//    @Getter
-//    @Setter
+
     @Column(nullable = false)
     private String nickname;
-//
-//    @Getter
-//    @Setter
+
     @Column(nullable = false)
-    private Date created;
+    private Date lastActivity;
 
     public User(){}
 
-    public User(String token, String nickname, Date created) {
+    public User(String token, String nickname, Date lastActivity) {
         this.token = token;
         this.nickname = nickname;
-        this.created = created;
+        this.lastActivity = lastActivity;
     }
 
     @Override
@@ -38,7 +32,7 @@ public class User implements Serializable {
         return "User{" +
                 "token='" + token + '\'' +
                 ", nickname='" + nickname + '\'' +
-                ", created=" + created +
+                ", lastActivity=" + lastActivity +
                 '}';
     }
 
@@ -66,11 +60,13 @@ public class User implements Serializable {
         this.nickname = nickname;
     }
 
-    public Date getCreated() {
-        return created;
+    public Date getLastActivity() {
+        return lastActivity;
     }
 
-    public void setCreated(Date created) {
-        this.created = created;
+    public void setLastActivity(Date created) {
+        this.lastActivity = created;
     }
+
+
 }
