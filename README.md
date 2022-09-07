@@ -9,6 +9,7 @@ To start playing type your nickname and create new game session or join to exist
 * User recognition based on tokens
 * Playing with "AI" based on minimax algorithm
 * Simple joining to another game using token
+* Deleting inactive users
 
 # Technologies
 Core technologies:
