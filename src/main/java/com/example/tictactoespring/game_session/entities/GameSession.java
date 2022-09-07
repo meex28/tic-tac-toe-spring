@@ -19,13 +19,11 @@ public class GameSession {
     @Getter
     @Setter
     @OneToOne(optional = false, targetEntity = User.class)
-//    @JoinColumn(name="host_token", referencedColumnName = "token")
     private User host;
 
     @Getter
     @Setter
     @OneToOne(optional = true, targetEntity = User.class)
-//    @JoinColumn(name="guest_token", referencedColumnName = "token")
     private User guest;
 
 

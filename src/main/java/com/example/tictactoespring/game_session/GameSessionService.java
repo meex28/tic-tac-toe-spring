@@ -105,11 +105,6 @@ public class GameSessionService {
         }
     }
 
-    //TODO: add joining random sessions
-    public GameSessionDTO joinRandomSession(String token){
-        return null;
-    }
-
     public void setReady(String token) throws TokenException {
         if(!userService.isTokenValid(token))
             throw new TokenException("Invalid token");
